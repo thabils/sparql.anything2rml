@@ -1,0 +1,15 @@
+PREFIX xyz: <http://sparql.xyz/facade-x/data/>
+
+CONSTRUCT
+  {
+    ?subject <http://example.com/id> ?id .
+    ?subject <http://xmlns.com/foaf/0.1/name> ?name .
+  }
+WHERE
+  { SERVICE <x-sparql-anything:location=student.csv,csv.headers=true>
+      {
+      	?s  xyz:ID  	?id ;
+            xyz:Name  	?name .
+        bind(uri(concat(str("http://example.com/"),encode_for_uri(?id),str("/"),encode_for_uri(?name))) as ?subject)
+      }
+  }
