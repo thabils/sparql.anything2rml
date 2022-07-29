@@ -1,7 +1,7 @@
 import unittest
 
-from main import generate_sparql_anything
-from util import call_sparql_anything_jar, compare_n3_files
+from src.main import generate_sparql_anything
+from src.util import call_sparql_anything_jar, compare_n3_files
 
 
 class CSVTestCase(unittest.TestCase):
@@ -108,7 +108,7 @@ class CSVTestCase(unittest.TestCase):
 def check(case):
     print(case)
     test_case_directory = "test_cases/" + case
-    generate_sparql_anything(test_case_directory)
+    generate_sparql_anything(test_case_directory + "/mapping.ttl")
     call_sparql_anything_jar(test_case_directory, test_case_directory + "/" + "sparql_output.nq")
 
     return compare_n3_files(test_case_directory + "/sparql_output.nq", test_case_directory + "/output.nq")

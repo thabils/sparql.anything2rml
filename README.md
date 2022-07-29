@@ -1,9 +1,10 @@
 # sparql.anything2rml
 
 ## Setup
-Add the 0.7.0 jar in the main folder 
+To enable testing add a sparql anything jar to the project.
+After this add the path from the root of the project to config.ini file.
 
-(available on https://github.com/SPARQL-Anything/sparql.anything/releases)
+(jar is available on https://github.com/SPARQL-Anything/sparql.anything/releases)
 
 ## Testing
     python3 -m unittest src/test.py 
