@@ -15,8 +15,10 @@ def find_literal(list_nodes):
 
 def call_sparql_anything_jar(directory, output_file):
     config = configparser.ConfigParser()
-    config.read("../config.ini")
+    config.read("config.ini")
+    print(config.sections())
     jar_version = config.get("JAR", "VERSION")
+    print(jar_version)
 
     subprocess.call(
         ['java', '-jar', jar_version, '-q', directory + '/query.sparql', '-f', 'NQ', '-o', output_file])
