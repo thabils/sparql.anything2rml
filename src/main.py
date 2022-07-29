@@ -1,7 +1,7 @@
 from rdflib import Graph
 
 from logical_sources import get_sparql_header
-from namespaces import predicate_map_uri, logical_source_uri, subject_map_uri
+from namespaces import predicate_object_map_uri, logical_source_uri, subject_map_uri
 from predicates import get_predicate_map, make_getters, make_construct, make_setter
 from subjects import get_subject_map, get_subject, get_subject_references
 
@@ -50,7 +50,7 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
         raise Exception("No logical source specified")
     sparql_header = get_sparql_header(g, logical_source[0], directory)
 
-    for o in g.objects(triple_map, predicate_map_uri):
+    for o in g.objects(triple_map, predicate_object_map_uri):
         predicate = get_predicate_map(g, o)
         if "references" in predicate:
             for value in predicate["references"]:
@@ -65,6 +65,7 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
         predicates.append(predicate)
 
     subject_map = get_subject_map(g, next(g.objects(triple_map, subject_map_uri)))
+    print(get_subject_references(subject_map))
     for element in get_subject_references(subject_map):
         if element not in references:
             references[element] = str(last_reference_value)
@@ -72,11 +73,16 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
 
     if "class_nodes" in subject_map:
         predicates.append(
-            {"name": f'<{subject_map["class_nodes"]}>', "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            {"constant": f'<{subject_map["class_nodes"]}>', "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
              "literal": True})
 
+
+
     getters = make_getters(references)
+
     subject_value = f'?subject{last_reference_value}'
+    if "constant" in subject_map:
+        subject_value = f'<{subject_map["constant"]}>'
     construct = make_construct(predicates, references, subject_value)
 
     setters = [make_setter(predicate["template"], predicate["reference"], references) for predicate in predicates if
