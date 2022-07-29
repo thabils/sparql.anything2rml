@@ -65,7 +65,6 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
         predicates.append(predicate)
 
     subject_map = get_subject_map(g, next(g.objects(triple_map, subject_map_uri)))
-    print(get_subject_references(subject_map))
     for element in get_subject_references(subject_map):
         if element not in references:
             references[element] = str(last_reference_value)
