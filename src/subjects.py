@@ -67,10 +67,10 @@ def get_subject_template(subject, references, subject_value):
             strings.append(f'str("{element["value"]}")')
     if is_blank_node:
 
-        return f'        bind( BNODE({strings[0]}) as {subject_value})\n'
+        # return f'        bind( BNODE({strings[0]}) as {subject_value})\n'
         # TODO wait for fx:bnode
 
-        # return f'        bind(uri(concat({",".join(strings)})) as ?bnode_subject)\n' \
+        return f'        bind(concat({",".join(strings)}) as {subject_value})\n' \
         #        + f'        bind( BNODE(?bnode_subject) as ?subject)\n'
     else:
         return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'

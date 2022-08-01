@@ -5,8 +5,8 @@ from namespaces import predicate_uri, object_map_uri, object_uri, rml_reference_
 from util import parse_template, get_value
 
 
-def make_construct(predicates, references, subject_value):
-    return [f'    {subject_value} <{predicate["predicate"]}> {(predicate["constant"]) if predicate["literal"] else ( "?" + predicate["bound"])} .\n' for
+def make_construct(predicates, subject_value, subject_bnode):
+    return [f'    {"_:" + subject_value[1:] if subject_bnode else subject_value} <{predicate["predicate"]}> {(predicate["constant"]) if predicate["literal"] else ( "?" + predicate["bound"])} .\n' for
             predicate in predicates]
 
 

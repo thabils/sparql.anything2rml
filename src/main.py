@@ -91,10 +91,8 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
     subject_value = f'?subject{last_reference_value}'
     if "constant" in subject_map:
         subject_value = f'<{subject_map["constant"]}>'
-    construct = make_construct(predicates, references, subject_value)
-    #
-    # setters = [make_setter(predicate["template"], predicate["reference"], references) for predicate in predicates if
-    #            "template" in predicate]
+    subject_bnode = "term_type" in subject_map and str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
+    construct = make_construct(predicates, subject_value, subject_bnode)
     setters.append(get_subject(subject_map, references, subject_value))
     return construct, sparql_header, getters, setters, last_reference_value
 
