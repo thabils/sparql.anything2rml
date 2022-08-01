@@ -17,4 +17,4 @@ predicate_uri = URIRef('http://www.w3.org/ns/r2rml#predicate')
 object_map_uri = URIRef('http://www.w3.org/ns/r2rml#objectMap')
 object_uri = URIRef('http://www.w3.org/ns/r2rml#object')
 rr_constant_uri = URIRef('http://www.w3.org/ns/r2rml#constant')
-
+language_uri = URIRef("http://www.w3.org/ns/r2rml#language")

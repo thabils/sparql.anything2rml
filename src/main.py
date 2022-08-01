@@ -44,6 +44,7 @@ def get_base(mapping_file):
 def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
     predicates = []
     references = {}
+    setters = []
 
     logical_source = list(g.objects(triple_map, logical_source_uri))
     if len(logical_source) == 0:
@@ -58,10 +59,19 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
                     references[value] = str(last_reference_value)
                     last_reference_value += 1
         if "template" in predicate:
-            predicate["reference"] = str(last_reference_value)
+            predicate["bound"] = str(last_reference_value)
             references[str(last_reference_value)] = str(last_reference_value)
-
             last_reference_value += 1
+        if "reference" in predicate:
+            predicate["bound"] = references[predicate["reference"]]
+        if "language" in predicate:
+            predicate["bound"] = str(last_reference_value)
+            references[str(last_reference_value)] = str(last_reference_value)
+            last_reference_value += 1
+
+        if "template" in predicate or "language" in predicate:
+            setters.append(make_setter(predicate, predicate["bound"], references))
+
         predicates.append(predicate)
 
     subject_map = get_subject_map(g, next(g.objects(triple_map, subject_map_uri)))
@@ -72,10 +82,9 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
 
     if "class_nodes" in subject_map:
         predicates.append(
-            {"constant": f'<{subject_map["class_nodes"]}>', "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            {"constant": f'<{subject_map["class_nodes"]}>',
+             "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
              "literal": True})
-
-
 
     getters = make_getters(references)
 
@@ -83,9 +92,9 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
     if "constant" in subject_map:
         subject_value = f'<{subject_map["constant"]}>'
     construct = make_construct(predicates, references, subject_value)
-
-    setters = [make_setter(predicate["template"], predicate["reference"], references) for predicate in predicates if
-               "template" in predicate]
+    #
+    # setters = [make_setter(predicate["template"], predicate["reference"], references) for predicate in predicates if
+    #            "template" in predicate]
     setters.append(get_subject(subject_map, references, subject_value))
     return construct, sparql_header, getters, setters, last_reference_value
 
@@ -113,7 +122,6 @@ def generate_sparql_anything(mapping_file):
     with open(sparql_anything_file, "w") as f:
         f.write(make_query(base, general_construct, services))
     return
-
 
 # print(generate_sparql_anything("test_cases/RMLTC0001a-CSV"))
 # print(generate_sparql_anything("!used_test_cases/RMLTC0001b-CSV"))
