@@ -1,35 +1,33 @@
 from rdflib import Graph
 
 from namespaces import template_uri, reference_uri, class_uri, term_type_uri, rr_constant_uri
-from util import parse_template
+from util import parse_template, get_value
 
 
 def get_subject_map(g: Graph, node):
-    answer = {}
+    response = {}
 
     template = list(g.objects(node, template_uri))
-    if len(template) != 0:
-        answer["template"] = template[0]
+    if template:
+        response["template"] = template[0]
 
     reference = list(g.objects(node, reference_uri))
-    if len(reference) != 0:
-        answer["reference"] = reference[0]
+    if reference:
+        response["reference"] = reference[0]
 
     class_nodes = list(g.objects(node, class_uri))
-    if len(class_nodes) != 0:
-        answer["class_nodes"] = class_nodes[0]
+    if class_nodes:
+        response["class_nodes"] = class_nodes[0]
 
     term_type = list(g.objects(node, term_type_uri))
-    if len(term_type) != 0:
-        answer["term_type"] = term_type[0]
+    if term_type:
+        response["term_type"] = term_type[0]
 
     constant = list(g.objects(node, rr_constant_uri))
-    if len(constant) != 0:
+    if constant:
         # answer["constant"] = f'"{constant[0]}"'
-        answer["constant"] = str(constant[0])
-
-
-    return answer
+        response["constant"] = str(constant[0])
+    return response
 
 
 def get_subject(subject, references, subject_value):
@@ -70,8 +68,10 @@ def get_subject_template(subject, references, subject_value):
         # return f'        bind( BNODE({strings[0]}) as {subject_value})\n'
         # TODO wait for fx:bnode
 
-        return f'        bind(concat({",".join(strings)}) as {subject_value})\n' \
         #        + f'        bind( BNODE(?bnode_subject) as ?subject)\n'
+
+        return f'        bind(concat({",".join(strings)}) as {subject_value})\n' \
+
     else:
         return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'
 

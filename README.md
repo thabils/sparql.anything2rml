@@ -10,12 +10,16 @@ After this add the path from the root of the project to config.ini file.
     python3 -m unittest src/test.py 
 
 ## How to use
+To generate a SPARQL Anything file:
 
-    python3 src/cli.py "MAPPING_FILENAME"
+    python3 src/cli.py "MAPPING_FILENAME" create
+
+To generate a SPARQL Anything file and generate it's output:
+
+    python3 src/cli.py "MAPPING_FILENAME" generate
 
 ## TODO
 
-- Graph support
 - RefObjectMap support
 - Json support
 - reference to triple map in an object map (see RMLTC0008b-CSV)
@@ -23,7 +27,11 @@ After this add the path from the root of the project to config.ini file.
 ## Current issues
 
 - RMLTC0020b-CSV: using "path/../Danny" as an URI in SPARLQL Anything gives different behaviour than the RMLMapper
-- Blanknodes hash their input while RMLMapper uses the input as identifier eg. _:Venus vs _:B7b29b0d7X2Dce2fX2D4737X2Dbb05X2D1a73df2f48ca
-- Spaces in reference names (see RMLTC0010c-CSV) crashes SPARQL anything parser
-- Spaces in constant values in CONSTRUCT (see RMLTC0006a-CSV) crashes the SPARQL anything parser 
-- Language tag doesn't seem supported in sparql anything
+- RMLTC0002b-CSV: Blanknodes hash their input while RMLMapper uses the input as identifier
+- RMLTC0010c-CSV: Spaces in reference names crashes SPARQL anything parser
+- RMLTC0006a-CSV: Spaces in constant values in CONSTRUCT (see ) crashes the SPARQL anything parser 
+
+## Not implemented in SPARQL Anything?
+- Language tag
+- Graph's
+

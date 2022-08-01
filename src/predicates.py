@@ -6,7 +6,8 @@ from util import parse_template, get_value
 
 
 def make_construct(predicates, subject_value, subject_bnode):
-    return [f'    {"_:" + subject_value[1:] if subject_bnode else subject_value} <{predicate["predicate"]}> {(predicate["constant"]) if predicate["literal"] else ( "?" + predicate["bound"])} .\n' for
+    return [f'    {"_:" + subject_value[1:] if subject_bnode else subject_value} <{predicate["predicate"]}> ' +
+            f'{(predicate["constant"]) if predicate["literal"] else ( "?" + predicate["bound"])} .\n' for
             predicate in predicates]
 
 
@@ -16,27 +17,16 @@ def make_getters(references):
             reference != references[reference]]
 
 
-# def get_predicate(g: Graph, node):
-#     predicate_map = list(g.objects(node, predicate_map_uri))
-#     if len(predicate_map) == 0:
-#         return list(g.objects(node, predicate_uri))
-#     predicate_constant = list(g.objects(predicate_map[0], rr_constant_uri))
-#     if len(predicate_constant) != 0:
-#         return predicate_constant
-#
-#     return
-
-
 def get_predicate_map(g: Graph, node):
     predicate = get_value(g, node, predicate_map_uri, predicate_uri)
 
-    if len(predicate) == 0:
+    if predicate["value"] == "":
         raise Exception("No predicate was found")
 
     object_maps = list(g.objects(node, object_map_uri))
 
     if len(object_maps) != 0:
-        response = {"predicate": predicate[0], "literal": False}
+        response = {"predicate": predicate["value"], "literal": False}
 
         response.update(parse_object_map(g, object_maps[0]))
         return response
@@ -44,7 +34,7 @@ def get_predicate_map(g: Graph, node):
     object_node = list(g.objects(node, object_uri))
 
     if len(object_node) != 0:
-        return {"predicate": predicate[0], "constant": f'<{object_node[0]}>', "literal": True}
+        return {"predicate": predicate["value"], "constant": f'<{object_node[0]}>', "literal": True}
     else:
         raise Exception("no object or object mapping was defined")
     # return {"predicate": predicate[0], "object_maps_node": object_maps_generator[0], "literal": False}

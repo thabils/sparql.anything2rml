@@ -15,14 +15,10 @@ if __name__ == "__main__":
     input_file = sys.argv[1]
     mode = sys.argv[2]
     print(input_file)
-    if mode == "generate":
+    if mode == "create":
         generate_sparql_anything(input_file)
-    if mode == "test":
+    elif mode == "generate":
         generate_sparql_anything(input_file)
         test_case_directory = input_file[:input_file.rfind("/")]
         call_sparql_anything_jar(test_case_directory, test_case_directory + "/" + "sparql_output.nq")
-        if compare_n3_files(test_case_directory + "/sparql_output.nq", test_case_directory + "/output.nq"):
-            print("Correct!")
-        else:
-            print("False")
 

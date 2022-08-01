@@ -9,20 +9,12 @@ import configparser
 from namespaces import rr_constant_uri, reference_uri
 
 
-def find_literal(list_nodes):
-    for node in list_nodes:
-        if node is rdflib.term.Literal:
-            return node
-    return ""
-
-
 def call_sparql_anything_jar(directory, output_file):
     config = configparser.ConfigParser()
     config.read("config.ini")
     jar_version = config.get("JAR", "VERSION")
 
-    subprocess.call(
-        ['java', '-jar', jar_version, '-q', directory + '/query.sparql', '-f', 'NQ', '-o', output_file])
+    subprocess.call(['java', '-jar', jar_version, '-q', directory + '/query.sparql', '-f', 'NQ', '-o', output_file])
     return
 
 
@@ -97,20 +89,21 @@ def parse_template(template):
     return final_response
 
 
-def find_uri(search_value, predicates):
-    for predicate in predicates:
-        if str(predicate["reference"]) == search_value:
-            return predicate["name"]
-    return ""
-
-
 def get_value(g: Graph, node, map_uri, direct_uri):
     map_list = list(g.objects(node, map_uri))
-    if len(map_list) == 0:
-        return list(g.objects(node, direct_uri))
-    # find constant in map
-    predicate_constant = list(g.objects(map_list[0], rr_constant_uri))
-    if len(predicate_constant) == 0:
+    if map_list:
+        # find constant in map
+        constant = list(g.objects(map_list[0], rr_constant_uri))
+        if constant:
+            return {"value": constant[0], "reference": False}
+
         # find reference in map
-        return list(g.objects(map_list[0], reference_uri))
-    return predicate_constant
+        reference = list(g.objects(map_list[0], reference_uri))
+        if reference:
+            return {"value": reference[0], "reference": True}
+    direct = list(g.objects(node, direct_uri))
+    if direct:
+        return {"value": direct[0], "reference": False}
+
+    return {"value": ""}
+

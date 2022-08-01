@@ -15,18 +15,9 @@ def make_query(base, construct, services):
 
     for amount, service in enumerate(services):
         answer += f'    SERVICE{service["sparql_header"]}\n' + '      {\n'
-
-        for index, getter in enumerate(service["getters"]):
-            if index == 0:
-                answer += f'      	?s{amount}  '
-            else:
-                answer += '      	    '
-            answer += getter
-            if index + 1 == len(service["getters"]):
-                answer += ".\n"
-            else:
-                answer += ";\n"
-
+        answer += f'      	?s{amount}  '
+        answer += ";\n      	    ".join(service["getters"])
+        answer += ".\n"
         answer += "".join(service["setters"])
         answer += '      }\n'
     answer += '  }'
@@ -51,6 +42,17 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
         raise Exception("No logical source specified")
     sparql_header = get_sparql_header(g, logical_source[0], directory)
 
+    subject = list(g.objects(triple_map, subject_map_uri))
+    if len(subject) == 0:
+        raise Exception("No subject specified")
+
+    subject_map = get_subject_map(g, subject[0])
+
+    for element in get_subject_references(subject_map):
+        if element not in references:
+            references[element] = str(last_reference_value)
+            last_reference_value += 1
+
     for o in g.objects(triple_map, predicate_object_map_uri):
         predicate = get_predicate_map(g, o)
         if "references" in predicate:
@@ -74,12 +76,6 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
 
         predicates.append(predicate)
 
-    subject_map = get_subject_map(g, next(g.objects(triple_map, subject_map_uri)))
-    for element in get_subject_references(subject_map):
-        if element not in references:
-            references[element] = str(last_reference_value)
-            last_reference_value += 1
-
     if "class_nodes" in subject_map:
         predicates.append(
             {"constant": f'<{subject_map["class_nodes"]}>',
@@ -91,8 +87,10 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
     subject_value = f'?subject{last_reference_value}'
     if "constant" in subject_map:
         subject_value = f'<{subject_map["constant"]}>'
-    subject_bnode = "term_type" in subject_map and str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
-    construct = make_construct(predicates, subject_value, subject_bnode)
+    is_subject_bnode = "term_type" in subject_map and \
+                    str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
+    construct = make_construct(predicates, subject_value, is_subject_bnode)
+
     setters.append(get_subject(subject_map, references, subject_value))
     return construct, sparql_header, getters, setters, last_reference_value
 
