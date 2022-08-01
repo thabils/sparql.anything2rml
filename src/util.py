@@ -1,12 +1,11 @@
 import copy
 import subprocess
 
-import rdflib
 from rdflib import Graph
 from rdflib.compare import isomorphic
 import configparser
 
-from namespaces import rr_constant_uri, reference_uri
+from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri
 
 
 def call_sparql_anything_jar(directory, output_file):
@@ -93,17 +92,61 @@ def get_value(g: Graph, node, map_uri, direct_uri):
     map_list = list(g.objects(node, map_uri))
     if map_list:
         # find constant in map
-        constant = list(g.objects(map_list[0], rr_constant_uri))
-        if constant:
-            return {"value": constant[0], "reference": False}
-
-        # find reference in map
-        reference = list(g.objects(map_list[0], reference_uri))
-        if reference:
-            return {"value": reference[0], "reference": True}
+        return parse_map(g, map_list[0])
+        #
+        # constant = list(g.objects(map_list[0], rr_constant_uri))
+        # if constant:
+        #     return {"value": constant[0], "reference": False, "map": True}
+        #
+        # # find reference in map
+        # reference = list(g.objects(map_list[0], reference_uri))
+        # if reference:
+        #     return {"value": reference[0], "reference": True, "map": True}
     direct = list(g.objects(node, direct_uri))
     if direct:
-        return {"value": direct[0], "reference": False}
+        return {"constant": direct[0], "reference": False}
 
     return {"value": ""}
 
+
+def parse_map(g: Graph, object_map):
+    response = {}
+
+    typing = list(g.objects(object_map, typing_uri))
+    language = list(g.objects(object_map, language_uri))
+
+    constant = list(g.objects(object_map, rr_constant_uri))
+    reference = list(g.objects(object_map, rml_reference_uri))
+    template = list(g.objects(object_map, template_uri))
+
+    if len(language):
+        response["language"] = language[0]
+    if len(typing):
+        response["typing"] = typing[0]
+
+    if len(reference) != 0:
+        response["reference_value"] = str(reference[0])
+        response["references"] = [str(reference[0])]
+        response["reference"] = True
+
+    elif len(template) != 0:
+        parsed_template = parse_template(template[0])
+        response["references"] = ([str(element["value"]) for element in parsed_template if element["reference"]])
+        response["template"] = parsed_template
+        response["reference"] = True
+
+    elif len(constant) != 0:
+        response["constant"] = str(constant[0])
+        response["reference"] = False
+    else:
+        raise Exception("no reference, template or constant was found")
+
+    return response
+
+
+def add_references(predicate, references):
+    for value in object_map["references"]:
+        if value not in references:
+            references[value] = str(last_reference_value)
+            last_reference_value += 1
+    return references

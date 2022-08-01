@@ -54,33 +54,34 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
             last_reference_value += 1
 
     for o in g.objects(triple_map, predicate_object_map_uri):
-        predicate = get_predicate_map(g, o)
-        if "references" in predicate:
-            for value in predicate["references"]:
+        predicate, object_map = get_predicate_map(g, o)
+
+        if "references" in object_map:
+            for value in object_map["references"]:
                 if value not in references:
                     references[value] = str(last_reference_value)
                     last_reference_value += 1
-        if "template" in predicate:
-            predicate["bound"] = str(last_reference_value)
+        if "template" in object_map:
+            object_map["bound"] = str(last_reference_value)
             references[str(last_reference_value)] = str(last_reference_value)
             last_reference_value += 1
-        if "reference" in predicate:
-            predicate["bound"] = references[predicate["reference"]]
-        if "language" in predicate:
-            predicate["bound"] = str(last_reference_value)
+        if "reference_value" in object_map:
+            object_map["bound"] = references[object_map["reference_value"]]
+        if "language" in object_map:
+            object_map["bound"] = str(last_reference_value)
             references[str(last_reference_value)] = str(last_reference_value)
             last_reference_value += 1
 
-        if "template" in predicate or "language" in predicate:
-            setters.append(make_setter(predicate, predicate["bound"], references))
+        if "template" in object_map or "language" in object_map:
+            setters.append(make_setter(object_map, object_map["bound"], references))
 
-        predicates.append(predicate)
+        predicates.append((predicate, object_map))
 
     if "class_nodes" in subject_map:
-        predicates.append(
+        predicates.append((
+            {"constant": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             {"constant": f'<{subject_map["class_nodes"]}>',
-             "predicate": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-             "literal": True})
+             "reference": False}))
 
     getters = make_getters(references)
 
