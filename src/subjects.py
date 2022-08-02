@@ -1,7 +1,8 @@
 from rdflib import Graph
 
 from namespaces import template_uri, reference_uri, class_uri, term_type_uri, rr_constant_uri
-from util import parse_template, get_value
+from predicates import make_setter
+from util import parse_template
 
 
 def get_subject_map(g: Graph, node):
@@ -25,7 +26,6 @@ def get_subject_map(g: Graph, node):
 
     constant = list(g.objects(node, rr_constant_uri))
     if constant:
-        # answer["constant"] = f'"{constant[0]}"'
         response["constant"] = str(constant[0])
     return response
 
@@ -55,6 +55,9 @@ def get_subject_references(subject):
 def get_subject_template(subject, references, subject_value):
     is_blank_node = "term_type" in subject and str(subject["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
     strings = []
+    if is_blank_node:
+        return make_setter({"object_map": parse_template(subject["template"])}, subject_value, references)
+
     for element in parse_template(subject["template"]):
         if element["reference"]:
             if is_blank_node:
@@ -74,10 +77,3 @@ def get_subject_template(subject, references, subject_value):
 
     else:
         return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'
-
-
-def find_uri(search_value, predicates):
-    for predicate in predicates:
-        if str(predicate["reference"]) == search_value:
-            return predicate["name"]
-    return ""

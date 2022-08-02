@@ -119,9 +119,3 @@ def generate_sparql_anything(mapping_file):
     with open(sparql_anything_file, "w") as f:
         f.write(make_query(base, general_construct, services))
     return
-
-# print(generate_sparql_anything("test_cases/RMLTC0001a-CSV"))
-# print(generate_sparql_anything("!used_test_cases/RMLTC0001b-CSV"))
-# print(generate_sparql_anything("!used_test_cases/RMLTC0002a-CSV"))
-# print(generate_sparql_anything("!used_test_cases/RMLTC0003c-CSV"))
-# print(generate_sparql_anything("test_cases/RMLTC0015a-CSV"))
