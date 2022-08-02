@@ -181,8 +181,10 @@ def make_string_setter(object_map, reference, references):
 
     if "language" in object_map:
         strings.append(f'str("@{object_map["language"]}")')
-
-    return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
+    if "typing" in object_map and object_map["typing"] == rr_iri_uri:
+        return f'        bind( uri(concat({",".join(strings)})) as ?{reference})\n'
+    else:
+        return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
 
 
 def make_uri_setter(subject, references, subject_value):
