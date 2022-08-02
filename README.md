@@ -20,9 +20,8 @@ To generate a SPARQL Anything file and generate it's output:
 
 ## TODO
 
-- RefObjectMap support
+- RefObjectMap support (see RMLTC0008b-CSV)
 - Json support
-- reference to triple map in an object map (see RMLTC0008b-CSV)
 
 ## Current issues
 

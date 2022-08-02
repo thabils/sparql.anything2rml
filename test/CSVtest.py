@@ -66,11 +66,13 @@ class CSVTestCase(unittest.TestCase):
     def test_RMLTC0008c_CSV(self):
         self.assertTrue(check("RMLTC0008c-CSV"))
 
-    def test_RMLTC0009a_CSV(self):
-        self.assertTrue(check("RMLTC0009a-CSV"))
+    # join is not supported in sparql anything
+    # def test_RMLTC0009a_CSV(self):
+    #     self.assertTrue(check("RMLTC0009a-CSV"))
 
-    def test_RMLTC0009b_CSV(self):
-        self.assertTrue(check("RMLTC0009b-CSV"))
+    # graph and join are not supported in sparql anything
+    # def test_RMLTC0009b_CSV(self):
+    #     self.assertTrue(check("RMLTC0009b-CSV"))
 
     # space in reference (in template)
     # def test_RMLTC0010a_CSV(self):

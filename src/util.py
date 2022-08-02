@@ -5,7 +5,8 @@ import subprocess
 from rdflib import Graph
 import configparser
 
-from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri, rr_iri_uri
+from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri, rr_iri_uri, \
+    parent_triples_map_uri, subject_map_uri, term_type_uri
 
 
 def call_sparql_anything_jar(directory, output_file):
@@ -31,8 +32,8 @@ def compare_n3_files(new_file, original_file):
             if line.strip():
                 original_file_dict.add(line.strip())
 
-    print(original_file_dict.difference(new_file_dict))
-    print(new_file_dict.difference(original_file_dict))
+    # print(original_file_dict.difference(new_file_dict))
+    # print(new_file_dict.difference(original_file_dict))
     return new_file_dict == original_file_dict
 
 
@@ -40,6 +41,7 @@ def compare_n3_files_delete(new_file, original_file):
     response = compare_n3_files(new_file, original_file)
     os.remove(new_file)
     return response
+
 
 def parse_escaped_curly_brackets(template):
     temp_template = copy.copy(template)
@@ -105,20 +107,19 @@ def parse_template(template):
     return final_response
 
 
+def get_values(g: Graph, node, map_uri, direct_uri):
+    response = []
+    for element in list(g.objects(node, map_uri)):
+        response.append(parse_map(g, element))
+    for element in list(g.objects(node, direct_uri)):
+        response.append({"constant": element, "reference": False})
+    return response
+
+
 def get_value(g: Graph, node, map_uri, direct_uri):
     map_list = list(g.objects(node, map_uri))
     if map_list:
-        # find constant in map
         return parse_map(g, map_list[0])
-        #
-        # constant = list(g.objects(map_list[0], rr_constant_uri))
-        # if constant:
-        #     return {"value": constant[0], "reference": False, "map": True}
-        #
-        # # find reference in map
-        # reference = list(g.objects(map_list[0], reference_uri))
-        # if reference:
-        #     return {"value": reference[0], "reference": True, "map": True}
     direct = list(g.objects(node, direct_uri))
     if direct:
         return {"constant": direct[0], "reference": False}
@@ -126,10 +127,19 @@ def get_value(g: Graph, node, map_uri, direct_uri):
     return {"value": ""}
 
 
+def parse_parent_triples_map(g, parent_triples_map):
+    subject_map = list(g.objects(parent_triples_map, subject_map_uri))
+    if subject_map:
+        return subject_map[0]
+    else:
+        raise Exception("no subject map found in parent triples map")
+
+
 def parse_map(g: Graph, object_map):
     response = {}
+    parent_triples_map = list(g.objects(object_map, parent_triples_map_uri))
 
-    typing = list(g.objects(object_map, typing_uri))
+    typing = list(g.objects(object_map, term_type_uri))
     language = list(g.objects(object_map, language_uri))
 
     constant = list(g.objects(object_map, rr_constant_uri))
@@ -138,7 +148,7 @@ def parse_map(g: Graph, object_map):
 
     if len(language):
         response["language"] = language[0]
-    if len(typing):
+    if typing:
         response["typing"] = typing[0]
 
     if len(reference) != 0:
@@ -157,6 +167,8 @@ def parse_map(g: Graph, object_map):
     elif len(constant) != 0:
         response["constant"] = str(constant[0])
         response["reference"] = False
+    elif parent_triples_map:
+        response["parent_triples_map"] = parse_parent_triples_map(g, parent_triples_map[0])
     else:
         raise Exception("no reference, template or constant was found")
 

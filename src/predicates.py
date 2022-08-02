@@ -1,7 +1,7 @@
 from rdflib import Graph
 
 from namespaces import predicate_uri, object_map_uri, object_uri, predicate_map_uri
-from util import get_value
+from util import get_value, get_values
 
 
 def make_construct(predicates, subject_value, subject_bnode):
@@ -17,7 +17,6 @@ def make_getters(references):
 
 
 def get_predicate_map(g: Graph, node):
-    predicate = get_value(g, node, predicate_map_uri, predicate_uri)
-
+    predicates = get_values(g, node, predicate_map_uri, predicate_uri)
     object_map = get_value(g, node, object_map_uri, object_uri)
-    return predicate, object_map
+    return predicates, object_map

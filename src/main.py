@@ -33,8 +33,8 @@ def get_base(mapping_file):
                 return f'base {line[line.index(" "):-2]}\n'
 
 
-def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
-    predicates = []
+def parse_triple_map(g: Graph, triple_map, directory, reference_value):
+    all_predicates = []
     references = {}
     setters = []
 
@@ -51,51 +51,64 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
 
     for element in get_subject_references(subject_map):
         if element not in references:
-            references[element] = str(last_reference_value)
-            last_reference_value += 1
+            references[element] = str(reference_value["reference"])
+            reference_value["reference"] += 1
 
     for o in g.objects(triple_map, predicate_object_map_uri):
-        predicate, object_map = get_predicate_map(g, o)
+        predicates, object_map = get_predicate_map(g, o)
+        for predicate in predicates:
+            if "references" in object_map:
+                for value in object_map["references"]:
+                    if value not in references:
+                        references[value] = str(reference_value["reference"])
+                        reference_value["reference"] += 1
+            if "template" in object_map:
+                object_map["bound"] = str(reference_value["reference"])
+                references[str(reference_value["reference"])] = str(reference_value["reference"])
+                reference_value["reference"] += 1
+            if "reference_value" in object_map:
+                object_map["bound"] = references[object_map["reference_value"]]
+            if "language" in object_map:
+                object_map["bound"] = str(reference_value["reference"])
+                references[str(reference_value["reference"])] = str(reference_value["reference"])
+                reference_value["reference"] += 1
 
-        if "references" in object_map:
-            for value in object_map["references"]:
-                if value not in references:
-                    references[value] = str(last_reference_value)
-                    last_reference_value += 1
-        if "template" in object_map:
-            object_map["bound"] = str(last_reference_value)
-            references[str(last_reference_value)] = str(last_reference_value)
-            last_reference_value += 1
-        if "reference_value" in object_map:
-            object_map["bound"] = references[object_map["reference_value"]]
-        if "language" in object_map:
-            object_map["bound"] = str(last_reference_value)
-            references[str(last_reference_value)] = str(last_reference_value)
-            last_reference_value += 1
+            if "template" in object_map or "language" in object_map:
+                setters.append(make_string_setter(object_map, object_map["bound"], references))
 
-        if "template" in object_map or "language" in object_map:
-            setters.append(make_string_setter(object_map, object_map["bound"], references))
+            if "parent_triples_map" in object_map:
+                parent_subject_map = get_subject_map(g, object_map["parent_triples_map"])
 
-        predicates.append((predicate, object_map))
+                for element in get_subject_references(parent_subject_map):
+                    if element not in references:
+                        references[element] = str(reference_value["reference"])
+                        reference_value["reference"] += 1
+
+                setters.append(get_subject_setter(parent_subject_map, references, f'?{reference_value["reference"]}'))
+                object_map["bound"] = str(reference_value["reference"])
+                object_map["reference"] = True
+                reference_value["reference"] += 1
+            all_predicates.append((predicate, object_map))
 
     if "class_nodes" in subject_map:
-        predicates.append((
+        all_predicates.append((
             {"constant": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
             {"constant": f'{subject_map["class_nodes"]}',
              "reference": False}))
 
     getters = make_getters(references)
 
-    subject_value = f'?subject{last_reference_value}'
+    subject_value = f'?subject{reference_value["subject"]}'
+    reference_value["subject"] += 1
     if "constant" in subject_map:
         subject_value = f'{subject_map["constant"]}'
     is_subject_bnode = "term_type" in subject_map and \
                        str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
-    construct = make_construct(predicates, subject_value, is_subject_bnode)
+    construct = make_construct(all_predicates, subject_value, is_subject_bnode)
 
     setters.append(get_subject_setter(subject_map, references, subject_value))
 
-    return construct, sparql_header, getters, setters, last_reference_value
+    return construct, sparql_header, getters, setters, reference_value
 
 
 def generate_sparql_anything(mapping_file):
@@ -107,7 +120,7 @@ def generate_sparql_anything(mapping_file):
     g.parse(mapping_file)
 
     base = get_base(mapping_file)
-    last_reference_value = 0
+    last_reference_value = {"subject": 0, "reference": 0}
     general_construct = []
     services = []
 
