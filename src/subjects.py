@@ -1,8 +1,7 @@
 from rdflib import Graph
 
 from namespaces import template_uri, reference_uri, class_uri, term_type_uri, rr_constant_uri
-from predicates import make_setter
-from util import parse_template
+from util import parse_template, make_uri_setter, make_string_setter
 
 
 def get_subject_map(g: Graph, node):
@@ -30,9 +29,9 @@ def get_subject_map(g: Graph, node):
     return response
 
 
-def get_subject(subject, references, subject_value):
+def get_subject_setter(subject, references, subject_value):
     if "template" in subject:
-        return get_subject_template(subject, references, subject_value)
+        return get_subject_template_setter(subject, references, subject_value)
     elif "reference" in subject:
         # TODO look at test case RMLTC0020b-CSV does this typing matter?
 
@@ -52,28 +51,9 @@ def get_subject_references(subject):
         return []
 
 
-def get_subject_template(subject, references, subject_value):
+def get_subject_template_setter(subject, references, subject_value):
     is_blank_node = "term_type" in subject and str(subject["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
-    strings = []
     if is_blank_node:
-        return make_setter({"object_map": parse_template(subject["template"])}, subject_value, references)
-
-    for element in parse_template(subject["template"]):
-        if element["reference"]:
-            if is_blank_node:
-                strings.append(f' ?{references[element["value"]]}')
-            else:
-                strings.append(f'encode_for_uri(?{references[element["value"]]})')
-        else:
-            strings.append(f'str("{element["value"]}")')
-    if is_blank_node:
-
-        # return f'        bind( BNODE({strings[0]}) as {subject_value})\n'
-        # TODO wait for fx:bnode
-
-        #        + f'        bind( BNODE(?bnode_subject) as ?subject)\n'
-
-        return f'        bind(concat({",".join(strings)}) as {subject_value})\n' \
-
+        return make_string_setter({"template": parse_template(subject["template"])}, subject_value[1:], references)
     else:
-        return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'
+        return make_uri_setter(subject, references, subject_value)

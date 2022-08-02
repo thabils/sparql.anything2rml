@@ -144,9 +144,33 @@ def parse_map(g: Graph, object_map):
     return response
 
 
-def add_references(predicate, references):
-    for value in object_map["references"]:
-        if value not in references:
-            references[value] = str(last_reference_value)
-            last_reference_value += 1
-    return references
+def make_template(template, references):
+    strings = []
+    for element in template:
+        if element["reference"]:
+            strings.append(f'encode_for_uri(?{references[element["value"]]})')
+        else:
+            strings.append(f'str("{element["value"]}")')
+    return strings
+
+
+def make_string_setter(object_map, reference, references):
+    if "template" in object_map:
+        strings = make_template(object_map["template"], references)
+    else:
+        strings = [f' ?{references[object_map["reference_value"]]} ']
+
+    if "language" in object_map:
+        strings.append(f'str("@{object_map["language"]}")')
+
+    return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
+
+
+def make_uri_setter(subject, references, subject_value):
+    strings = []
+    for element in parse_template(subject["template"]):
+        if element["reference"]:
+            strings.append(f'encode_for_uri(?{references[element["value"]]})')
+        else:
+            strings.append(f'str("{element["value"]}")')
+    return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'
