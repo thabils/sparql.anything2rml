@@ -1,8 +1,8 @@
 import copy
+import os
 import subprocess
 
 from rdflib import Graph
-from rdflib.compare import isomorphic
 import configparser
 
 from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri, rr_iri_uri
@@ -19,9 +19,17 @@ def call_sparql_anything_jar(directory, output_file):
 
 def compare_n3_files(new_file, original_file):
     # compare both files, return true if same file otherwise false
-    g1 = Graph().parse(new_file)
-    g2 = Graph().parse(original_file)
-    return isomorphic(g1, g2)
+    new_file_dict = set()
+    with open(new_file, "r") as f:
+        for line in f:
+            if line.strip():
+                new_file_dict.add(line.strip())
+
+    original_file_dict = set()
+    with open(original_file, "r") as f:
+        for line in f:
+            if line.strip():
+                original_file_dict.add(line.strip())
 
     print(original_file_dict.difference(new_file_dict))
     print(new_file_dict.difference(original_file_dict))
@@ -143,6 +151,8 @@ def parse_map(g: Graph, object_map):
         response["references"] = ([str(element["value"]) for element in parsed_template if element["reference"]])
         response["template"] = parsed_template
         response["reference"] = True
+        if "typing" not in response:
+            response["typing"] = rr_iri_uri
 
     elif len(constant) != 0:
         response["constant"] = str(constant[0])
