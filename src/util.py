@@ -5,7 +5,7 @@ from rdflib import Graph
 from rdflib.compare import isomorphic
 import configparser
 
-from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri
+from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri, rr_iri_uri
 
 
 def call_sparql_anything_jar(directory, output_file):
@@ -23,6 +23,15 @@ def compare_n3_files(new_file, original_file):
     g2 = Graph().parse(original_file)
     return isomorphic(g1, g2)
 
+    print(original_file_dict.difference(new_file_dict))
+    print(new_file_dict.difference(original_file_dict))
+    return new_file_dict == original_file_dict
+
+
+def compare_n3_files_delete(new_file, original_file):
+    response = compare_n3_files(new_file, original_file)
+    os.remove(new_file)
+    return response
 
 def parse_escaped_curly_brackets(template):
     temp_template = copy.copy(template)

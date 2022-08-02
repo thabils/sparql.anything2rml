@@ -74,7 +74,6 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
             last_reference_value += 1
 
         if "template" in object_map or "language" in object_map:
-            print(make_string_setter(object_map, object_map["bound"], references))
             setters.append(make_string_setter(object_map, object_map["bound"], references))
 
         predicates.append((predicate, object_map))
@@ -82,14 +81,14 @@ def parse_triple_map(g: Graph, triple_map, directory, last_reference_value):
     if "class_nodes" in subject_map:
         predicates.append((
             {"constant": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"},
-            {"constant": f'<{subject_map["class_nodes"]}>',
+            {"constant": f'{subject_map["class_nodes"]}',
              "reference": False}))
 
     getters = make_getters(references)
 
     subject_value = f'?subject{last_reference_value}'
     if "constant" in subject_map:
-        subject_value = f'<{subject_map["constant"]}>'
+        subject_value = f'{subject_map["constant"]}'
     is_subject_bnode = "term_type" in subject_map and \
                        str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
     construct = make_construct(predicates, subject_value, is_subject_bnode)
