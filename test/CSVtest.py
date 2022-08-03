@@ -2,45 +2,46 @@ import unittest
 
 from src.main import generate_sparql_anything
 from src.util import call_sparql_anything_jar, compare_n3_files_delete
+from test.CoreTest import check
 
 
 class CSVTestCase(unittest.TestCase):
     def test_RMLTC0001a_CSV(self):
-        self.assertTrue(check("RMLTC0001a-CSV"))
+        self.assertTrue(check_csv("RMLTC0001a"))
 
     # Blanknodes getting hashed
     # def test_RMLTC0001b_CSV(self):
     #     self.assertTrue(check("RMLTC0001b-CSV"))
 
     def test_RMLTC0002a_CSV(self):
-        self.assertTrue(check("RMLTC0002a-CSV"))
+        self.assertTrue(check_csv("RMLTC0002a"))
 
     # Blanknodes getting hashed
     # def test_RMLTC0002b_CSV(self):
     #     self.assertTrue(check("RMLTC0002b-CSV"))
 
     def test_RMLTC0003c_CSV(self):
-        self.assertTrue(check("RMLTC0003c-CSV"))
+        self.assertTrue(check_csv("RMLTC0003c"))
 
     def test_RMLTC0004a_CSV(self):
-        self.assertTrue(check("RMLTC0004a-CSV"))
+        self.assertTrue(check_csv("RMLTC0004a"))
 
     def test_RMLTC0005a_CSV(self):
-        self.assertTrue(check("RMLTC0005a-CSV"))
+        self.assertTrue(check_csv("RMLTC0005a"))
 
     # Space in constant value
     # def test_RMLTC0006a_CSV(self):
     #     self.assertTrue(check("RMLTC0006a-CSV"))
 
     def test_RMLTC0007a_CSV(self):
-        self.assertTrue(check("RMLTC0007a-CSV"))
+        self.assertTrue(check_csv("RMLTC0007a"))
 
     # Graph
     # def test_RMLTC0007c_CSV(self):
     #     self.assertTrue(check("RMLTC0007c-CSV"))
 
     def test_RMLTC0007d_CSV(self):
-        self.assertTrue(check("RMLTC0007d-CSV"))
+        self.assertTrue(check_csv("RMLTC0007d"))
 
     # Graphs
     # def test_RMLTC0007e_CSV(self):
@@ -51,7 +52,7 @@ class CSVTestCase(unittest.TestCase):
     #     self.assertTrue(check("RMLTC0007f-CSV"))
 
     def test_RMLTC0007g_CSV(self):
-        self.assertTrue(check("RMLTC0007g-CSV"))
+        self.assertTrue(check_csv("RMLTC0007g"))
 
     # def test_RMLTC0007h_CSV(self):
     #     self.assertTrue(check("RMLTC0007h-CSV"))
@@ -61,10 +62,10 @@ class CSVTestCase(unittest.TestCase):
     #     self.assertTrue(check("RMLTC0008a-CSV"))
 
     def test_RMLTC0008b_CSV(self):
-        self.assertTrue(check("RMLTC0008b-CSV"))
+        self.assertTrue(check_csv("RMLTC0008b"))
 
     def test_RMLTC0008c_CSV(self):
-        self.assertTrue(check("RMLTC0008c-CSV"))
+        self.assertTrue(check_csv("RMLTC0008c"))
 
     # join is not supported in sparql anything
     # def test_RMLTC0009a_CSV(self):
@@ -84,7 +85,7 @@ class CSVTestCase(unittest.TestCase):
 
     # template gets turned in to uri but in
     def test_RMLTC0011b_CSV(self):
-        self.assertTrue(check("RMLTC0011b-CSV"))
+        self.assertTrue(check_csv("RMLTC0011b"))
 
     # Blanknodes hashing
     # def test_RMLTC0012a_CSV(self):
@@ -99,13 +100,13 @@ class CSVTestCase(unittest.TestCase):
     #     self.assertTrue(check("RMLTC0015a-CSV"))
 
     def test_RMLTC0019a_CSV(self):
-        self.assertTrue(check("RMLTC0019a-CSV"))
+        self.assertTrue(check_csv("RMLTC0019a"))
 
     def test_RMLTC0019b_CSV(self):
-        self.assertTrue(check("RMLTC0019b-CSV"))
+        self.assertTrue(check_csv("RMLTC0019b"))
 
     def test_RMLTC0020a_CSV(self):
-        self.assertTrue(check("RMLTC0020a-CSV"))
+        self.assertTrue(check_csv("RMLTC0020a"))
 
     # path/../danny doesnt work in sparql anything
     # def test_RMLTC0020b_CSV(self):
@@ -115,13 +116,8 @@ class CSVTestCase(unittest.TestCase):
     #     self.assertTrue(check(""))
 
 
-def check(case):
-    print(case)
-    test_case_directory = "test_cases/" + case
-    generate_sparql_anything(test_case_directory + "/mapping.ttl")
-    call_sparql_anything_jar(test_case_directory, test_case_directory + "/" + "sparql_output.nq")
-
-    return compare_n3_files_delete(test_case_directory + "/sparql_output.nq", test_case_directory + "/output.nq")
+def check_csv(case):
+    return check(case, "CSV")
 
 
 if __name__ == '__main__':
