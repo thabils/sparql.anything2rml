@@ -27,7 +27,8 @@ To generate a SPARQL Anything file and generate it's output:
 
 ### File support
 
--CSV
+- CSV
+- JSON (has issues with numbers)
 
 ### Mapping features
 
@@ -57,19 +58,23 @@ To generate a SPARQL Anything file and generate it's output:
 
 - rr:parentTriplesMap (only without join condition)
 
-## TODO
-
-- JSon support
-
 ## Current issues
 
+### General issues
 - RMLTC0020b-CSV: using "path/../Danny" as an URI in SPARLQL Anything gives different behaviour than the RMLMapper
 - RMLTC0002b-CSV: Blanknodes hash their input while RMLMapper uses the input as identifier
 - RMLTC0010c-CSV: Spaces in reference names crashes SPARQL anything parser
 - RMLTC0006a-CSV: Spaces in constant values in CONSTRUCT (see ) crashes the SPARQL anything parser (test case files seem inconsistent)
 - Rare occurrences of different amount of whitespaces in output files 
 
+### JSON related
+
+- RMLTC0002a-JSON: SPARQL Anything doesn't accept numbers as values 
+
 ## Not implemented in SPARQL Anything
 - Language tag
 - Graph's
 - Join conditions (combining multiple different files)
+
+## TODO
+
