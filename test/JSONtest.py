@@ -118,7 +118,7 @@ class JSONtest(unittest.TestCase):
 
 
 def check_json(case):
-    return check(case, "JSON")
+    return check(case, "json")
 
 
 if __name__ == '__main__':

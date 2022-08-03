@@ -4,7 +4,7 @@ from src.util import call_sparql_anything_jar, compare_n3_files_delete
 
 def check(case, type_test):
     print(case + "-" + type_test)
-    test_case_directory = f"test_cases/{type_test}/{case}-{type_test}"
+    test_case_directory = f"test_cases/{type_test}/{case}-{type_test.upper()}"
     generate_sparql_anything(test_case_directory + "/mapping.ttl")
     call_sparql_anything_jar(test_case_directory, test_case_directory + "/" + "sparql_output.nq")
 

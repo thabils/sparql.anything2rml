@@ -117,7 +117,7 @@ class CSVTestCase(unittest.TestCase):
 
 
 def check_csv(case):
-    return check(case, "CSV")
+    return check(case, "csv")
 
 
 if __name__ == '__main__':
