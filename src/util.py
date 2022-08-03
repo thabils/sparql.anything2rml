@@ -32,8 +32,8 @@ def compare_n3_files(new_file, original_file):
             if line.strip():
                 original_file_dict.add(line.strip())
 
-    # print(original_file_dict.difference(new_file_dict))
-    # print(new_file_dict.difference(original_file_dict))
+    print(original_file_dict.difference(new_file_dict))
+    print(new_file_dict.difference(original_file_dict))
     return new_file_dict == original_file_dict
 
 
