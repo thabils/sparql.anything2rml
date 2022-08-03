@@ -17,6 +17,7 @@ def make_query(base, construct, services):
     for amount, service in enumerate(services):
         answer += f'    SERVICE{service["sparql_header"]}\n' + '      {\n'
         answer += f'      	?s{amount}  '
+        answer += service["properties"]
         answer += ";\n      	    ".join(service["getters"])
         answer += ".\n"
         answer += "".join(service["setters"])
@@ -33,7 +34,7 @@ def get_base(mapping_file):
                 return f'base {line[line.index(" "):-2]}\n'
 
 
-def parse_triple_map(g: Graph, triple_map, directory, reference_value):
+def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
     all_predicates = []
     references = {}
     setters = []
@@ -41,7 +42,7 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value):
     logical_source = list(g.objects(triple_map, logical_source_uri))
     if len(logical_source) == 0:
         raise Exception("No logical source specified")
-    sparql_header = get_sparql_header(g, logical_source[0], directory)
+    sparql_header, properties = get_sparql_header(g, logical_source[0], directory, index)
 
     subject = list(g.objects(triple_map, subject_map_uri))
     if len(subject) == 0:
@@ -108,12 +109,11 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value):
 
     setters.append(get_subject_setter(subject_map, references, subject_value))
 
-    return construct, sparql_header, getters, setters, reference_value
+    return construct, sparql_header, getters, setters, reference_value, properties
 
 
 def generate_sparql_anything(mapping_file):
     directory = mapping_file[:mapping_file.rfind("/")]
-    # mapping_file = directory + "/mapping.ttl"
     sparql_anything_file = directory + "/query.sparql"
 
     g = Graph()
@@ -125,11 +125,11 @@ def generate_sparql_anything(mapping_file):
     services = []
 
     # parse all the different triples maps
-    for s, _ in g.subject_objects(logical_source_uri):
-        construct, sparql_header, getters, setters, last_reference_value = parse_triple_map(g, s, directory,
-                                                                                            last_reference_value)
+    for index, (s, _) in enumerate(g.subject_objects(logical_source_uri)):
+        construct, sparql_header, getters, setters, last_reference_value, properties = parse_triple_map(g, s, directory,
+                                                                                            last_reference_value, index)
         general_construct.extend(construct)
-        services.append({"sparql_header": sparql_header, "getters": getters, "setters": setters})
+        services.append({"sparql_header": sparql_header, "getters": getters, "setters": setters, "properties": properties})
 
     with open(sparql_anything_file, "w") as f:
         f.write(make_query(base, general_construct, services))
