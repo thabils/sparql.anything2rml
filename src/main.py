@@ -1,7 +1,7 @@
 from rdflib import Graph
 
 from logical_sources import get_sparql_header
-from namespaces import predicate_object_map_uri, logical_source_uri, subject_map_uri
+from namespaces import predicate_object_map_uri, logical_source_uri, subject_map_uri, rr_iri_uri
 from predicates import get_predicate_map, make_getters, make_construct
 from util import make_string_setter
 from subjects import get_subject_map, get_subject_setter, get_subject_references
@@ -75,7 +75,11 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
                 reference_value["reference"] += 1
 
             if "template" in object_map or "language" in object_map:
-                setters.append(make_string_setter(object_map, object_map["bound"], references))
+                uri = not ("typing" in object_map and object_map["typing"] != rr_iri_uri)
+                print(uri)
+                print(object_map)
+                print(make_string_setter(object_map, object_map["bound"], references, uri))
+                setters.append(make_string_setter(object_map, object_map["bound"], references, uri))
 
             if "parent_triples_map" in object_map:
                 parent_subject_map = get_subject_map(g, object_map["parent_triples_map"])

@@ -28,7 +28,7 @@ To generate a SPARQL Anything file and generate it's output:
 ### File support
 
 - CSV
-- JSON (has issues with numbers)
+- JSON
 
 ### Mapping features
 
@@ -66,10 +66,6 @@ To generate a SPARQL Anything file and generate it's output:
 - RMLTC0010c-CSV: Spaces in reference names crashes SPARQL anything parser
 - RMLTC0006a-CSV: Spaces in constant values in CONSTRUCT (see ) crashes the SPARQL anything parser (test case files seem inconsistent)
 
-### JSON related
-
-- RMLTC0002a-JSON: SPARQL Anything doesn't accept numbers as values 
-
 ## Not implemented in SPARQL Anything
 - Language tag
 - Graph's
@@ -77,3 +73,4 @@ To generate a SPARQL Anything file and generate it's output:
 
 ## TODO
 
+- XML support

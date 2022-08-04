@@ -1,7 +1,7 @@
 from rdflib import Graph
 
 from namespaces import template_uri, reference_uri, class_uri, term_type_uri, rr_constant_uri
-from util import parse_template, make_uri_setter, make_string_setter
+from util import parse_template, make_string_setter
 
 
 def get_subject_map(g: Graph, node):
@@ -36,7 +36,7 @@ def get_subject_setter(subject, references, subject_value):
         # TODO look at test case RMLTC0020b-CSV does this typing matter?
 
         # currently assuming that the reference is already an iri
-        return f'        bind(iri(?{references[str(subject["reference"])]}) as {subject_value})\n'
+        return f'        bind(uri(str(?{references[str(subject["reference"])]})) as {subject_value})\n'
     elif "constant" in subject:
         # subject is constant so can just be added in construct
         return ""
@@ -53,7 +53,16 @@ def get_subject_references(subject):
 
 def get_subject_template_setter(subject, references, subject_value):
     is_blank_node = "term_type" in subject and str(subject["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
-    if is_blank_node:
-        return make_string_setter({"template": parse_template(subject["template"])}, subject_value[1:], references)
-    else:
-        return make_uri_setter(subject, references, subject_value)
+
+    # if is_blank_node:
+    #     typing = blank_node_uri
+    # else:
+    #     typing = rr_iri_uri
+
+    return make_string_setter({"template": parse_template(subject["template"])},
+                              subject_value[1:], references, not is_blank_node)
+
+    # if is_blank_node:
+    #     return make_string_setter({"template": parse_template(subject["template"]), "typing": rr_iri_uri}, subject_value[1:], references)
+    # else:
+    #     return make_uri_setter(subject, references, subject_value)

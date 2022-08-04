@@ -175,35 +175,43 @@ def parse_map(g: Graph, object_map):
     return response
 
 
-def make_template(template, references):
+def make_template(template, references, uri):
     strings = []
     for element in template:
-        if element["reference"]:
-            strings.append(f'encode_for_uri(?{references[element["value"]]})')
+        if element["reference"] and uri:
+            strings.append(f'encode_for_uri(str(?{references[element["value"]]}))')
+        elif element["reference"]:
+            strings.append(f'str(?{references[element["value"]]})')
         else:
             strings.append(f'str("{element["value"]}")')
     return strings
 
 
-def make_string_setter(object_map, reference, references):
+def make_string_setter(object_map, reference, references, uri):
     if "template" in object_map:
-        strings = make_template(object_map["template"], references)
+        strings = make_template(object_map["template"], references, uri)
     else:
         strings = [f' ?{references[object_map["reference_value"]]} ']
 
-    if "language" in object_map:
-        strings.append(f'str("@{object_map["language"]}")')
-    if "typing" in object_map and object_map["typing"] == rr_iri_uri:
-        return f'        bind( uri(concat({",".join(strings)})) as ?{reference})\n'
-    else:
-        return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
+    # if "typing" in object_map and object_map["typing"] == rr_iri_uri:
+    if uri:
+        return f'        bind(uri(concat({",".join(strings)})) as ?{reference})\n'
+
+    # if "template" in object_map:
+    #     strings = make_template(object_map["template"], references)
+    # else:
+    #     strings = [f' ?{references[object_map["reference_value"]]} ']
+
+    return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
 
 
-def make_uri_setter(subject, references, subject_value):
-    strings = []
-    for element in parse_template(subject["template"]):
-        if element["reference"]:
-            strings.append(f'encode_for_uri(?{references[element["value"]]})')
-        else:
-            strings.append(f'str("{element["value"]}")')
-    return f'        bind(uri(concat({",".join(strings)})) as {subject_value})\n'
+# def make_uri_setter(subject, references, subject_value):
+#     strings = [f'?{references[element["value"]]}' if element["reference"] else f'"{element["value"]}"' for element
+#                in parse_template(subject["template"])]
+#     # strings = []
+#     # for element in parse_template(subject["template"]):
+#     #     if element["reference"]:
+#     #         strings.append(f'encode_for_uri(?{references[element["value"]]})')
+#     #     else:
+#     #         strings.append(f'str("{element["value"]}")')
+#     return f'        bind((fx:entity({",".join(strings)})) as {subject_value})\n'

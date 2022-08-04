@@ -1,7 +1,5 @@
 import unittest
 
-from src.main import generate_sparql_anything
-from src.util import call_sparql_anything_jar, compare_n3_files_delete
 from test.CoreTest import check
 
 
