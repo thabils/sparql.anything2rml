@@ -1,20 +1,14 @@
 # sparql.anything2rml
 
-## Setup
-
-    pip install -r requirements.txt
-
-To enable testing add a sparql anything jar to the project.
-After this add the path from the root of the project to config.ini file.
-
-(jar is available on https://github.com/SPARQL-Anything/sparql.anything/releases)
-
-## Testing
-
-    python3 -m unittest src/test.py 
 
 ## How to use
 
+
+### Setup
+
+    pip install -r requirements.txt
+
+### CLI
 To generate a SPARQL Anything file:
 
     python3 src/cli.py "MAPPING_FILENAME" create
@@ -23,12 +17,27 @@ To generate a SPARQL Anything file and generate it's output:
 
     python3 src/cli.py "MAPPING_FILENAME" generate
 
-## Current features
 
-### File support
+## Testing
+
+### Setup
+To enable testing add a sparql anything jar to the project.
+After this add the path from the root of the project to config.ini file.
+
+(jar is available on: https://github.com/SPARQL-Anything/sparql.anything/releases)
+
+### CLI
+
+    python3 -m unittest test/CSVtest.py test/JSONtest.py  test/XMLtest.py 
+
+
+## Features
+
+### File format support
 
 - CSV
 - JSON
+- XML
 
 ### Mapping features
 
@@ -68,11 +77,9 @@ To generate a SPARQL Anything file and generate it's output:
 
 ### XML issues
 
-- Possible issues because iterator can match
+- Possible issues because iterator of mapping is stricter then the iterator that is used in SPARQL Anything.
 
-## Not implemented in SPARQL Anything
+### Not implemented in SPARQL Anything
 - Language tag
 - Graph's
 - Join conditions (combining multiple different files)
-
-## TODO
