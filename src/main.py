@@ -1,6 +1,6 @@
 from rdflib import Graph
 
-from logical_sources import get_sparql_header
+from logical_sources import parse_source
 from namespaces import predicate_object_map_uri, logical_source_uri, subject_map_uri, rr_iri_uri
 from predicates import get_predicate_map, make_getters, make_construct
 from util import make_string_setter
@@ -15,11 +15,17 @@ def make_query(base, construct, services):
     answer += " }\n" + "WHERE\n" + "  {\n"
 
     for amount, service in enumerate(services):
-        answer += f'    SERVICE{service["sparql_header"]}\n' + '      {\n'
-        answer += f'      	?s{amount}  '
-        answer += service["properties"]
-        answer += ";\n      	    ".join(service["getters"])
-        answer += ".\n"
+        source = service["source"]
+
+        answer += f'    SERVICE{source["header"]}\n' + '      {\n'
+        if source["typing"] == "xml":
+            answer += service["getters"]
+        else:
+            answer += f'      	?s{amount}  '
+            if "facade" in source:
+                answer += source["facade"]
+            answer += ";\n      	    ".join(service["getters"])
+            answer += ".\n"
         answer += "".join(service["setters"])
         answer += '      }\n'
     answer += '  }'
@@ -42,7 +48,7 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
     logical_source = list(g.objects(triple_map, logical_source_uri))
     if len(logical_source) == 0:
         raise Exception("No logical source specified")
-    sparql_header, properties = get_sparql_header(g, logical_source[0], directory, index)
+    source = parse_source(g, logical_source[0], directory, index)
 
     subject = list(g.objects(triple_map, subject_map_uri))
     if len(subject) == 0:
@@ -76,9 +82,9 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
 
             if "template" in object_map or "language" in object_map:
                 uri = not ("typing" in object_map and object_map["typing"] != rr_iri_uri)
-                print(uri)
-                print(object_map)
-                print(make_string_setter(object_map, object_map["bound"], references, uri))
+                # print(uri)
+                # print(object_map)
+                # print(make_string_setter(object_map, object_map["bound"], references, uri))
                 setters.append(make_string_setter(object_map, object_map["bound"], references, uri))
 
             if "parent_triples_map" in object_map:
@@ -101,7 +107,7 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
             {"constant": f'{subject_map["class_nodes"]}',
              "reference": False}))
 
-    getters = make_getters(references)
+    getters = make_getters(references, source)
 
     subject_value = f'?subject{reference_value["subject"]}'
     reference_value["subject"] += 1
@@ -113,7 +119,7 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
 
     setters.append(get_subject_setter(subject_map, references, subject_value))
 
-    return construct, sparql_header, getters, setters, reference_value, properties
+    return construct, source, getters, setters, reference_value
 
 
 def generate_sparql_anything(mapping_file):
@@ -130,10 +136,10 @@ def generate_sparql_anything(mapping_file):
 
     # parse all the different triples maps
     for index, (s, _) in enumerate(g.subject_objects(logical_source_uri)):
-        construct, sparql_header, getters, setters, last_reference_value, properties = parse_triple_map(g, s, directory,
+        construct, source, getters, setters, last_reference_value = parse_triple_map(g, s, directory,
                                                                                             last_reference_value, index)
         general_construct.extend(construct)
-        services.append({"sparql_header": sparql_header, "getters": getters, "setters": setters, "properties": properties})
+        services.append({"source": source, "getters": getters, "setters": setters})
 
     with open(sparql_anything_file, "w") as f:
         f.write(make_query(base, general_construct, services))

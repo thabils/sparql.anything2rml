@@ -66,11 +66,13 @@ To generate a SPARQL Anything file and generate it's output:
 - RMLTC0010c-CSV: Spaces in reference names crashes SPARQL anything parser
 - RMLTC0006a-CSV: Spaces in constant values in CONSTRUCT (see ) crashes the SPARQL anything parser (test case files seem inconsistent)
 
+### XML issues
+
+- Possible issues because iterator can match
+
 ## Not implemented in SPARQL Anything
 - Language tag
 - Graph's
 - Join conditions (combining multiple different files)
 
 ## TODO
-
-- XML support

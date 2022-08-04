@@ -3,15 +3,17 @@ from rdflib import Graph
 from namespaces import typing_uri, source_uri, iterator_uri
 
 
-def get_sparql_header(g: Graph, node, directory, index):
+def parse_source(g: Graph, node, directory, index):
     type_node = list(g.objects(node, typing_uri))
     if type_node:
         if str(type_node[0]) == "http://semweb.mmlab.be/ns/ql#CSV":
-            return make_csv_header(g, node, directory), ""
+            return {"header": make_csv_header(g, node, directory), "typing": "csv"}
         elif str(type_node[0]) == "http://semweb.mmlab.be/ns/ql#JSONPath":
-            return make_header(g, node, directory) + ">", make_json_facade(g, node, index)
+            return {"header": make_header(g, node, directory) + ">", "facade": make_json_facade(g, node, index),
+                    "typing": "json"}
         elif str(type_node[0]) == "http://semweb.mmlab.be/ns/ql#XPath":
-            return make_header(g, node, directory) + ">", make_xml_facade(g, node, index)
+            return {"header": make_header(g, node, directory) + ">", "iterator": parse_xml_iterator(g, node),
+                    "typing": "xml", "index": index}
     else:
         raise Exception("No typing for the source was found")
 
@@ -24,6 +26,14 @@ def make_header(g: Graph, node, directory):
         raise Exception("No source was found")
     response += f'location={directory}/{str(location_source[0])}'
     return response
+
+
+def parse_xml_iterator(g: Graph, node):
+    iterator = list(g.objects(node, iterator_uri))
+    if iterator:
+        return iterator[0].split("/")[1:]
+    else:
+        raise Exception("")
 
 
 def make_csv_header(g: Graph, node, directory):

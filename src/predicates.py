@@ -10,10 +10,30 @@ def make_construct(predicates, subject_value, subject_bnode):
             (predicate, object_map) in predicates]
 
 
-def make_getters(references):
-    # TODO RMLTC0010a-CSV space in name crashes sparql, changing value makes it not work
-    return [f'xyz:{reference}    ?{references[reference]}' for reference in references if
-            reference != references[reference]]
+def make_getters(references, source):
+    if source["typing"] == "xml":
+        strings = []
+        # check if iterator atleast has 1 element if so add basic value for response
+        if source["iterator"]:
+            strings.append(f'[ a xyz:{source["iterator"][0]}')
+
+        # TODO index across mapping bijhouden
+        index = 0
+        for value in source["iterator"][1:]:
+            strings.append(f' ?{source["index"]}li{index} [ a xyz:{value}')
+            index += 1
+        filter_string = ""
+        for reference in references:
+            if reference != references[reference]:
+                # 	FILTER (?topicId != xyz:id) .
+                filter_string += f'        FILTER(?{references[reference]} != xyz:{reference}) . \n'
+                strings.append(f'?{source["index"]}li{index} [ a xyz:{reference}; ?{source["index"]}li{index + 1} ?{references[reference]}]')
+                index += 2
+        return f'        {";".join(strings)}{"]" * len(source["iterator"])} .\n' + filter_string
+    else:
+        # TODO RMLTC0010a-CSV space in name crashes sparql, changing value makes it not work
+        return [f'xyz:{reference}    ?{references[reference]}' for reference in references if
+                reference != references[reference]]
 
 
 def get_predicate_map(g: Graph, node):
