@@ -9,7 +9,7 @@ def make_construct(predicates, subject_value, subject_bnode):
             f'{("?" + object_map["bound"]) if object_map["reference"] else ("<" + object_map["constant"] + ">")} .\n' for
             (predicate, object_map) in predicates]
 
-
+# all spaces are changed to %20 so it can be a valid uri
 def make_getters(references, source):
     if source["typing"] == "xml":
         strings = []
@@ -29,7 +29,6 @@ def make_getters(references, source):
                 index += 2
         return f'        {";".join(strings)}{"]" * len(source["iterator"])} .\n' + filter_string
     else:
-        # TODO RMLTC0010a-CSV space in name crashes sparql, changing value makes it not work
         return [f'xyz:{reference.replace(" ", "%20")}    ?{references[reference]}' for reference in references if
                 reference != references[reference]]
 

@@ -33,9 +33,6 @@ def get_subject_setter(subject, references, subject_value):
     if "template" in subject:
         return get_subject_template_setter(subject, references, subject_value)
     elif "reference" in subject:
-        # TODO look at test case RMLTC0020b-CSV does this typing matter?
-
-        # currently assuming that the reference is already an iri
         return f'        bind(uri(str(?{references[str(subject["reference"])]})) as {subject_value})\n'
     elif "constant" in subject:
         # subject is constant so can just be added in construct
@@ -54,6 +51,4 @@ def get_subject_references(subject):
 def get_subject_template_setter(subject, references, subject_value):
     is_blank_node = "term_type" in subject and str(subject["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
 
-
-    return make_string_setter({"template": parse_template(subject["template"])},
-                              subject_value[1:], references, not is_blank_node)
+    return make_string_setter({"template": parse_template(subject["template"])}, subject_value[1:], references, not is_blank_node)
