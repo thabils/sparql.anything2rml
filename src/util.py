@@ -5,7 +5,7 @@ import subprocess
 from rdflib import Graph
 import configparser
 
-from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_uri, language_uri, rr_iri_uri, \
+from namespaces import rr_constant_uri, rml_reference_uri, template_uri, language_uri, rr_iri_uri, \
     parent_triples_map_uri, subject_map_uri, term_type_uri
 
 
@@ -42,7 +42,7 @@ def compare_n3_files_delete(new_file, original_file):
     os.remove(new_file)
     return response
 
-
+# goes through string and splits the string on escaped {, }
 def parse_escaped_curly_brackets(template):
     temp_template = copy.copy(template)
     strings = []
@@ -66,6 +66,7 @@ def parse_escaped_curly_brackets(template):
     return strings
 
 
+# parses for references in the template
 def parse_string(template):
     response = []
     index_l = template.find("{")
