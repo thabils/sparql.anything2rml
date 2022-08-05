@@ -54,15 +54,6 @@ def get_subject_references(subject):
 def get_subject_template_setter(subject, references, subject_value):
     is_blank_node = "term_type" in subject and str(subject["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
 
-    # if is_blank_node:
-    #     typing = blank_node_uri
-    # else:
-    #     typing = rr_iri_uri
 
     return make_string_setter({"template": parse_template(subject["template"])},
                               subject_value[1:], references, not is_blank_node)
-
-    # if is_blank_node:
-    #     return make_string_setter({"template": parse_template(subject["template"]), "typing": rr_iri_uri}, subject_value[1:], references)
-    # else:
-    #     return make_uri_setter(subject, references, subject_value)

@@ -15,24 +15,22 @@ def make_getters(references, source):
         strings = []
         # check if iterator atleast has 1 element if so add basic value for response
         if source["iterator"]:
-            strings.append(f'[ a xyz:{source["iterator"][0]}')
+            strings.append(f'[ a xyz:{source["iterator"][0].replace(" ", "%20")}')
 
-        # TODO index across mapping bijhouden
         index = 0
         for value in source["iterator"][1:]:
-            strings.append(f' ?{source["index"]}li{index} [ a xyz:{value}')
+            strings.append(f' ?{source["index"]}li{index} [ a xyz:{value.replace(" ", "%20")}')
             index += 1
         filter_string = ""
         for reference in references:
             if reference != references[reference]:
-                # 	FILTER (?topicId != xyz:id) .
-                filter_string += f'        FILTER(?{references[reference]} != xyz:{reference}) . \n'
-                strings.append(f'?{source["index"]}li{index} [ a xyz:{reference}; ?{source["index"]}li{index + 1} ?{references[reference]}]')
+                filter_string += f'        FILTER(?{references[reference]} != xyz:{reference.replace(" ", "%20")}) . \n'
+                strings.append(f'?{source["index"]}li{index} [ a xyz:{reference.replace(" ", "%20")}; ?{source["index"]}li{index + 1} ?{references[reference]}]')
                 index += 2
         return f'        {";".join(strings)}{"]" * len(source["iterator"])} .\n' + filter_string
     else:
         # TODO RMLTC0010a-CSV space in name crashes sparql, changing value makes it not work
-        return [f'xyz:{reference}    ?{references[reference]}' for reference in references if
+        return [f'xyz:{reference.replace(" ", "%20")}    ?{references[reference]}' for reference in references if
                 reference != references[reference]]
 
 

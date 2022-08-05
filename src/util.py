@@ -182,8 +182,11 @@ def make_template(template, references, uri):
             strings.append(f'encode_for_uri(str(?{references[element["value"]]}))')
         elif element["reference"]:
             strings.append(f'str(?{references[element["value"]]})')
+        elif uri:
+            strings.append(f'str("{element["value"]}")')
         else:
             strings.append(f'str("{element["value"]}")')
+
     return strings
 
 
@@ -197,21 +200,4 @@ def make_string_setter(object_map, reference, references, uri):
     if uri:
         return f'        bind(uri(concat({",".join(strings)})) as ?{reference})\n'
 
-    # if "template" in object_map:
-    #     strings = make_template(object_map["template"], references)
-    # else:
-    #     strings = [f' ?{references[object_map["reference_value"]]} ']
-
     return f'        bind( concat({",".join(strings)}) as ?{reference})\n'
-
-
-# def make_uri_setter(subject, references, subject_value):
-#     strings = [f'?{references[element["value"]]}' if element["reference"] else f'"{element["value"]}"' for element
-#                in parse_template(subject["template"])]
-#     # strings = []
-#     # for element in parse_template(subject["template"]):
-#     #     if element["reference"]:
-#     #         strings.append(f'encode_for_uri(?{references[element["value"]]})')
-#     #     else:
-#     #         strings.append(f'str("{element["value"]}")')
-#     return f'        bind((fx:entity({",".join(strings)})) as {subject_value})\n'

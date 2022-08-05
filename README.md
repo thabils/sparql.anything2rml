@@ -72,7 +72,6 @@ After this add the path from the root of the project to config.ini file.
 ### General issues
 - RMLTC0020b-CSV: using "path/../Danny" as an URI in SPARLQL Anything gives different behaviour than the RMLMapper
 - RMLTC0002b-CSV: Blanknodes hash their input while RMLMapper uses the input as identifier
-- RMLTC0010c-CSV: Spaces in reference names crashes SPARQL anything parser
 - RMLTC0006a-CSV: Spaces in constant values in CONSTRUCT (see ) crashes the SPARQL anything parser (test case files seem inconsistent)
 
 ### XML issues

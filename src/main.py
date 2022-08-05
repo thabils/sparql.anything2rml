@@ -21,11 +21,13 @@ def make_query(base, construct, services):
         if source["typing"] == "xml":
             answer += service["getters"]
         else:
-            answer += f'      	?s{amount}  '
+            if service["getters"] or ("facade" in source and source["facade"]):
+                answer += f'      	?s{amount}  '
             if "facade" in source:
                 answer += source["facade"]
             answer += ";\n      	    ".join(service["getters"])
-            answer += ".\n"
+            if service["getters"] or ("facade" in source and source["facade"]):
+                answer += ".\n"
         answer += "".join(service["setters"])
         answer += '      }\n'
     answer += '  }'
@@ -82,9 +84,6 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
 
             if "template" in object_map or "language" in object_map:
                 uri = not ("typing" in object_map and object_map["typing"] != rr_iri_uri)
-                # print(uri)
-                # print(object_map)
-                # print(make_string_setter(object_map, object_map["bound"], references, uri))
                 setters.append(make_string_setter(object_map, object_map["bound"], references, uri))
 
             if "parent_triples_map" in object_map:
@@ -112,7 +111,7 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
     subject_value = f'?subject{reference_value["subject"]}'
     reference_value["subject"] += 1
     if "constant" in subject_map:
-        subject_value = f'{subject_map["constant"]}'
+        subject_value = f'<{subject_map["constant"]}>'
     is_subject_bnode = "term_type" in subject_map and \
                        str(subject_map["term_type"]) == "http://www.w3.org/ns/r2rml#BlankNode"
     construct = make_construct(all_predicates, subject_value, is_subject_bnode)
