@@ -9,12 +9,12 @@ from namespaces import rr_constant_uri, rml_reference_uri, template_uri, typing_
     parent_triples_map_uri, subject_map_uri, term_type_uri
 
 
-def call_sparql_anything_jar(directory, output_file):
+def call_sparql_anything_jar(query, output_file):
     config = configparser.ConfigParser()
     config.read("config.ini")
     jar_version = config.get("JAR", "VERSION")
 
-    subprocess.call(['java', '-jar', jar_version, '-q', directory + '/query.sparql', '-f', 'NQ', '-o', output_file])
+    subprocess.call(['java', '-jar', jar_version, '-q', query, '-f', 'NQ', '-o', output_file])
     return
 
 

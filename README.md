@@ -11,11 +11,37 @@
 ### CLI
 To generate a SPARQL Anything file:
 
-    python3 src/cli.py "MAPPING_FILENAME" create
+    python3 src/cli.py -i MAPPING_FILENAME -m create
+
+To generate the output of a SPARQL Anything query:
+
+    python3 src/cli.py -i MAPPING_FILENAME -m run
 
 To generate a SPARQL Anything file and generate it's output:
 
-    python3 src/cli.py "MAPPING_FILENAME" generate
+    python3 src/cli.py -i MAPPING_FILENAME -m generate
+
+All options can be found when executing python using 
+
+    python3 src/cli.py --help
+
+this gives the following output:
+
+    usage: cli.py [-h] [--m {run,generate,create}] --i I [--o O] [--so SO]
+
+    Transform RMLMapper mapping file to SPARQL Anything query.
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --m {run,generate,create}, -mode {run,generate,create}
+                            The different modes of the script: create: given a mapping file,
+                            create an equivalent SPARQL Anything query run: given a query file, run this query on the SPARQL Anything JAR
+                            specified in the config generate: given a mapping file, create an equivalent SPARQL Anything query and then run this file.
+      --i I, -input I       path to input file
+      --o O, -output O      OPTIONAL path to where the output (SPARQL anything query itself) should be generated
+      --so SO, -sparql-output SO
+                            OPTIONAL path to where the output of the SPARQL anything query should be generated
+
 
 
 ## Testing

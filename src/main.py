@@ -121,9 +121,10 @@ def parse_triple_map(g: Graph, triple_map, directory, reference_value, index):
     return construct, source, getters, setters, reference_value
 
 
-def generate_sparql_anything(mapping_file):
+def generate_sparql_anything(mapping_file, sparql_anything_file):
     directory = mapping_file[:mapping_file.rfind("/")]
-    sparql_anything_file = directory + "/query.sparql"
+    if sparql_anything_file == "":
+        sparql_anything_file = directory + "/query.sparql"
 
     g = Graph()
     g.parse(mapping_file)
@@ -136,7 +137,7 @@ def generate_sparql_anything(mapping_file):
     # parse all the different triples maps
     for index, (s, _) in enumerate(g.subject_objects(logical_source_uri)):
         construct, source, getters, setters, last_reference_value = parse_triple_map(g, s, directory,
-                                                                                            last_reference_value, index)
+                                                                                     last_reference_value, index)
         general_construct.extend(construct)
         services.append({"source": source, "getters": getters, "setters": setters})
 
